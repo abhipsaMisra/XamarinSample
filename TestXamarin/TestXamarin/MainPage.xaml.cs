@@ -68,7 +68,9 @@ namespace TestXamarin
                 {
                     messageData = Encoding.ASCII.GetString(receivedMessage.GetBytes());
                     Console.WriteLine("\t{0}> Received message: {1}", DateTime.Now.ToLocalTime(), messageData);
-                    receivedMessageText.Text = String.Format("Received message: {1}", DateTime.Now.ToLocalTime(), messageData);
+                    Device.BeginInvokeOnMainThread(() => {
+                        receivedMessageText.Text = String.Format("Received message: {1}", DateTime.Now.ToLocalTime(), messageData);
+                    });
 
                     int propCount = 0;
                     foreach (var prop in receivedMessage.Properties)

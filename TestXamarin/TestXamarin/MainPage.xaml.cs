@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using Xamarin.Forms;
 using Microsoft.Azure.Devices.Client;
 
@@ -19,25 +17,30 @@ namespace TestXamarin
 
         private static int MESSAGE_COUNT = 5;
         private const int TEMPERATURE_THRESHOLD = 30;
-        private static String deviceId = "MyUWPDevice";
+        private static String deviceId = "MyXamarinDevice";
         private static float temperature;
         private static float humidity;
         private static Random rnd = new Random();
+
+        public ObservableCollection<string> SentMessagesList = new ObservableCollection<string>();
+        public ObservableCollection<string> ReceivedMessagesList = new ObservableCollection<string>();
 
         public MainPage()
 		{
 			InitializeComponent();
             deviceID.Text = deviceId;
+            //sentMessagesText.ItemsSource = SentMessagesList;
+            //receivedMessagesText.ItemsSource = ReceivedMessagesList;
         }
 
         async void SendEvent(object sender, EventArgs e)
         {
             // TODO: deviceClient initialization needs to be modified as per coding standards
-            DeviceClient deviceClient = DeviceClient.CreateFromConnectionString(DeviceConnectionString, TransportType.Http1);
+            DeviceClient deviceClient = DeviceClient.CreateFromConnectionString(DeviceConnectionString, TransportType.Amqp);
             string dataBuffer;
 
-            Console.WriteLine("Device sending {0} messages to IoTHub...\n", MESSAGE_COUNT);
-            sentMessageText.Text = String.Format("Device sending {0} messages to IoTHub...\n", MESSAGE_COUNT);
+            Console.WriteLine("\n Device sending {0} messages to IoTHub...\n", MESSAGE_COUNT);
+            SentMessagesList.Add(String.Format("Device sending {0} messages to IoTHub...\n", MESSAGE_COUNT));
 
             for (int count = 0; count < MESSAGE_COUNT; count++)
             {
@@ -47,6 +50,11 @@ namespace TestXamarin
                 Message eventMessage = new Message(Encoding.UTF8.GetBytes(dataBuffer));
                 eventMessage.Properties.Add("temperatureAlert", (temperature > TEMPERATURE_THRESHOLD) ? "true" : "false");
                 Console.WriteLine("\t{0}> Sending message: {1}, Data: [{2}]", DateTime.Now.ToLocalTime(), count, dataBuffer);
+                
+                Device.BeginInvokeOnMainThread(() => {
+                    SentMessagesList.Add(String.Format("> Sending message: {1}, Data: [{2}]", DateTime.Now.ToLocalTime(), count, dataBuffer));
+                    sentMessagesText.ItemsSource = SentMessagesList;
+                });
 
                 await deviceClient.SendEventAsync(eventMessage).ConfigureAwait(false);
             }
@@ -57,6 +65,7 @@ namespace TestXamarin
             // TODO: deviceClient initialization needs to be modified as per coding standards
             DeviceClient deviceClient = DeviceClient.CreateFromConnectionString(DeviceConnectionString, TransportType.Http1);
             Console.WriteLine("\nDevice waiting for commands from IoTHub...\n");
+            ReceivedMessagesList.Add("Device waiting for commands from IoTHub...");
             Message receivedMessage;
             string messageData;
 
@@ -69,7 +78,8 @@ namespace TestXamarin
                     messageData = Encoding.ASCII.GetString(receivedMessage.GetBytes());
                     Console.WriteLine("\t{0}> Received message: {1}", DateTime.Now.ToLocalTime(), messageData);
                     Device.BeginInvokeOnMainThread(() => {
-                        receivedMessageText.Text = String.Format("Received message: {1}", DateTime.Now.ToLocalTime(), messageData);
+                        ReceivedMessagesList.Add(String.Format("Received message: {1}", DateTime.Now.ToLocalTime(), messageData));
+                        receivedMessagesText.ItemsSource = ReceivedMessagesList;
                     });
 
                     int propCount = 0;

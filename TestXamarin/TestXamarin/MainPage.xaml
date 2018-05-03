@@ -9,8 +9,8 @@
             <RowDefinition Height="10" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -34,14 +34,25 @@
         <Button x:Name="sendEventButton" Text="Send Event" Clicked="SendEvent"
                  Grid.Row="3" Grid.Column="0" />
 
-        <Label x:Name="sentMessageText" Text=""
-               Grid.Row="3" Grid.Column="1" />
+        <ListView x:Name="sentMessagesText" Grid.Row="3" Grid.Column="1" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell  x:Name="DataItem" Text="{Binding}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
 
         <Button x:Name="receiveCommandsButton" Text="Receive Commands" Clicked="ReceiveCommands"
                 Grid.Row="4" Grid.Column="0" />
 
-        <Label x:Name="receivedMessageText" Text=""
-               Grid.Row="4" Grid.Column="1" />
+        <ListView x:Name="receivedMessagesText" Grid.Row="4" Grid.Column="1" >
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell  x:Name="DataItem" Text="{Binding}" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
 
     </Grid>
 

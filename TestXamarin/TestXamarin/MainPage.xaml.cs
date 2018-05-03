@@ -19,7 +19,7 @@ namespace TestXamarin
 
         private static int MESSAGE_COUNT = 5;
         private const int TEMPERATURE_THRESHOLD = 30;
-        private static String deviceId = "MyCSharpXamarinDevice";
+        private static String deviceId = "MyUWPDevice";
         private static float temperature;
         private static float humidity;
         private static Random rnd = new Random();
@@ -27,6 +27,7 @@ namespace TestXamarin
         public MainPage()
 		{
 			InitializeComponent();
+            deviceID.Text = deviceId;
         }
 
         async void SendEvent(object sender, EventArgs e)
@@ -36,6 +37,7 @@ namespace TestXamarin
             string dataBuffer;
 
             Console.WriteLine("Device sending {0} messages to IoTHub...\n", MESSAGE_COUNT);
+            sentMessageText.Text = String.Format("Device sending {0} messages to IoTHub...\n", MESSAGE_COUNT);
 
             for (int count = 0; count < MESSAGE_COUNT; count++)
             {
@@ -66,6 +68,7 @@ namespace TestXamarin
                 {
                     messageData = Encoding.ASCII.GetString(receivedMessage.GetBytes());
                     Console.WriteLine("\t{0}> Received message: {1}", DateTime.Now.ToLocalTime(), messageData);
+                    receivedMessageText.Text = String.Format("Received message: {1}", DateTime.Now.ToLocalTime(), messageData);
 
                     int propCount = 0;
                     foreach (var prop in receivedMessage.Properties)
